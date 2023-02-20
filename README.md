@@ -1,1 +1,1 @@
-# ComplaintManagementSys
+# Student Complaint Managment System (SCMS)
