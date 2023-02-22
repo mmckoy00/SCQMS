@@ -3,7 +3,7 @@ package model;
 import java.io.Serializable;
 import java.util.Objects;
 
-public abstract class User implements Serializable {
+public  class User implements Serializable {
     private String id;
     private String password;
     private String firstName;
@@ -65,13 +65,15 @@ public abstract class User implements Serializable {
         return Objects.equals(PasswordEncoder.hashPassword(plainText), this.password);
     }
 
+   //test
+    public static void main(String[] args){
+        User user = new User("12345", "exam", "Mattania", "Mckoy");
 
-//   test
-//    public static void main(String[] args){
-//        User user = new User("12345", "exam", "Mattania", "Mckoy");
-//        System.out.println(user.toString());
-//        System.out.println(user.checkPassword("exam"));
-//
-//    }
+
+        System.out.println(user.toString());
+
+        System.out.println(user.checkPassword("exam"));
+
+    }
 
 }
