@@ -3,7 +3,7 @@ package model;
 import java.io.Serializable;
 import java.util.Objects;
 
-public  class User implements Serializable {
+public  abstract class User implements Serializable {
     private String id;
     private String password;
     private String firstName;
@@ -66,14 +66,14 @@ public  class User implements Serializable {
     }
 
    //test
-    public static void main(String[] args){
-        User user = new User("12345", "exam", "Mattania", "Mckoy");
-
-
-        System.out.println(user.toString());
-
-        System.out.println(user.checkPassword("exam"));
-
-    }
+//    public static void main(String[] args){
+//        User user = new User("12345", "exam", "Mattania", "Mckoy");
+//
+//
+//        System.out.println(user.toString());
+//
+//        System.out.println(user.checkPassword("exam"));
+//
+//    }
 
 }
