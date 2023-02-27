@@ -8,15 +8,17 @@ public  abstract class User implements Serializable {
     private String password;
     private String firstName;
     private String lastName;
+    private Role userRole;
 
     public User() {
     }
 
-    public User(String id, String password, String firstName, String lastName) {
+    public User(String id, String password, String firstName, String lastName, Role role) {
         this.id = id;
         this.password = PasswordEncoder.hashPassword(password);
         this.firstName = firstName;
         this.lastName = lastName;
+        this.userRole = role;
     }
 
     public String getId() {
@@ -51,6 +53,14 @@ public  abstract class User implements Serializable {
         this.lastName = lastName;
     }
 
+    public Role getUserRole() {
+        return userRole;
+    }
+
+    public void setUserRole(Role userRole) {
+        this.userRole = userRole;
+    }
+
     @Override
     public String toString() {
         return "User{" +
@@ -58,6 +68,7 @@ public  abstract class User implements Serializable {
                 ", password='" + password + '\'' +
                 ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
+                ", role='"+ userRole + '\''+
                 '}';
     }
 
