@@ -1,0 +1,93 @@
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+public class StudentDashboard {
+    private Connection connection;
+    
+    public StudentDashboard() {
+        // initialize the database connection
+        try {
+            Class.forName("com.mysql.jdbc.Driver");
+            connection = DriverManager.getConnection("jdbc:mysql://localhost/studentdashboard", "username", "password");
+        } catch (ClassNotFoundException | SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    public void addComplaint(String category, String details) {
+        // add a new complaint to the database
+        try {
+            PreparedStatement ps = connection.prepareStatement("INSERT INTO complaints (category, details) VALUES (?, ?)");
+            ps.setString(1, category);
+            ps.setString(2, details);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    public void addQuery(String category, String details) {
+        // add a new query to the database
+        try {
+            PreparedStatement ps = connection.prepareStatement("INSERT INTO queries (category, details) VALUES (?, ?)");
+            ps.setString(1, category);
+            ps.setString(2, details);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    public ResultSet getAllComplaints() {
+        // get a list of all complaints from the database
+        ResultSet rs = null;
+        try {
+            PreparedStatement ps = connection.prepareStatement("SELECT * FROM complaints");
+            rs = ps.executeQuery();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return rs;
+    }
+    
+    public ResultSet getAllQueries() {
+        // get a list of all queries from the database
+        ResultSet rs = null;
+        try {
+            PreparedStatement ps = connection.prepareStatement("SELECT * FROM queries");
+            rs = ps.executeQuery();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return rs;
+    }
+    
+    public ResultSet getComplaintById(int id) {
+        // get a specific complaint by its ID from the database
+        ResultSet rs = null;
+        try {
+            PreparedStatement ps = connection.prepareStatement("SELECT * FROM complaints WHERE id = ?");
+            ps.setInt(1, id);
+            rs = ps.executeQuery();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return rs;
+    }
+    
+    public ResultSet getQueryById(int id) {
+        // get a specific query by its ID from the database
+        ResultSet rs = null;
+        try {
+            PreparedStatement ps = connection.prepareStatement("SELECT * FROM queries WHERE id = ?");
+            ps.setInt(1, id);
+            rs = ps.executeQuery();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return rs;
+    }
+}
