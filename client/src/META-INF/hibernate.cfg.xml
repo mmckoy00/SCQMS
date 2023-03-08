@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC
+	 "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+	 "http://www.jboss.org/dtd/hibernate/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+	<session-factory>
+		<!--Hibernate Properties-->
+		<property name="hbm2ddl.auto">update</property>
+		<property name="hibernate.dialect">org.hibernate.dialect.MySQL8Dialect</property>
+		<property name="hibernate.show_sql">true</property>
+		<property name="connection.pool_size">1</property>
+		
+		<!--Database Connection Settings-->
+		<property name="connection.url">jdbc:mysql://localhost:3306/cqms_db</property>
+		<property name="connection.username">root</property>
+		<property name="connection.password">@7235Ma@@</property>
+		<property name="connection.driver_class">com.mysql.cj.jdbc.Driver</property>
+		
+		<!--Configure session context - user to manage session of particular thread for execution-->
+		<!--jtaSessionContext-->
+		<property name="hibernate.current_session_context_class">thread</property>
+		
+		<!-- Mapping files-->
+		<mapping class="model.User"/>
+		<mapping class="model.Student"/>
+		
+	</session-factory>
+</hibernate-configuration>
