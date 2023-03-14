@@ -5,7 +5,7 @@
 <hibernate-configuration>
 	<session-factory>
 		<!--Hibernate Properties-->
-		<property name="hbm2ddl.auto">update</property>
+		<property name="hbm2ddl.auto">create-drop</property>
 		<property name="hibernate.dialect">org.hibernate.dialect.MySQL8Dialect</property>
 		<property name="hibernate.show_sql">true</property>
 		<property name="connection.pool_size">1</property>
@@ -20,9 +20,12 @@
 		<!--jtaSessionContext-->
 		<property name="hibernate.current_session_context_class">thread</property>
 		
-		<!-- Mapping files-->
+		<!-- Mapping files to entities-->
 		<mapping class="model.User"/>
 		<mapping class="model.Student"/>
+		<mapping class="model.Advisor"/>
+		<mapping class="model.Supervisor"/>
+		<mapping class="model.Complaint"/>
 		
 	</session-factory>
 </hibernate-configuration>
