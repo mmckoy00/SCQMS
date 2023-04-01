@@ -4,6 +4,11 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
+import client.Client;
+import model.Advisor;
+import model.Student;
+import model.Supervisor;
+import model.User;
 
 import javax.swing.JLabel;
 import javax.swing.JTextField;
@@ -11,7 +16,7 @@ import javax.swing.JComboBox;
 
 import javax.swing.DefaultComboBoxModel;
 
-//import model.Student;
+
 //import model.Supervisor;
 //import model.User;
 
@@ -35,7 +40,7 @@ public class Registration extends JFrame {
 	private JTextField txtFieldID;
 	private JTextField txtFieldPassword;
 	private JTextField txtFieldEmail;
-	//private JComboBox<User.Role> comboBox;
+	private JComboBox<User.Role> comboBox;
 	private JLabel lblEmail;
 	private JLabel lblBg, lblID, lblFirstName, lblRole, lblLastName, lblPassword, lblNewLabel,  lblContact;
 	private JButton btnCancel, btnSignUp;
@@ -46,14 +51,7 @@ public class Registration extends JFrame {
 
 
 
-	public Registration() {
-		initializeComponents();
-	    addComponentsToContentPane();
-	}
-	
-	
-
-	private void initializeComponents() {
+	public Registration(Client client)  {
 		
 		//FRAME
 		setTitle("Create Account");
@@ -83,11 +81,11 @@ public class Registration extends JFrame {
 		lblRole.setFont(new Font("Tahoma", Font.BOLD | Font.ITALIC, 13));
 		lblRole.setForeground(Color.WHITE);
 		lblRole.setBounds(465, 196, 50, 14);
-	//	comboBox = new JComboBox<User.Role>();
-	///	comboBox.setBounds(463, 213, 92, 20);
-	//	comboBox.setModel(new DefaultComboBoxModel<User.Role>(User.Role.values()));
-	//	comboBox.setSelectedIndex(0);
-	//	comboBox.addActionListener(new RoleComboxListener());
+		comboBox = new JComboBox<User.Role>();
+		comboBox.setBounds(463, 213, 92, 20);
+		comboBox.setModel(new DefaultComboBoxModel<User.Role>(User.Role.values()));
+		comboBox.setSelectedIndex(0);
+		comboBox.addActionListener(new RoleComboxListener());
 
 		//FIRST NAME
 		lblFirstName = new JLabel("First Name");
@@ -121,7 +119,7 @@ public class Registration extends JFrame {
 		btnSignUp.setBounds(468, 410, 83, 23);
 		btnSignUp.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				signUp();
+				signUp(client);
 			}
 		});
 		
@@ -185,37 +183,49 @@ public class Registration extends JFrame {
 	  txtFieldContact = new JTextField();
 	  txtFieldContact.setBounds(304, 349, 124, 20);
 	  txtFieldContact.setColumns(10);
+	  
+	  addComponentsToContentPane();
 	}
 	
 	
-	private void signUp() {
-		
+	private void signUp(Client client) {
 		String id = txtFieldID.getText();
 		String password = txtFieldID.getText();
 		String fName = txtFieldFirstName.getText();
 		String lName = txtFieldLastName.getText();
 		String contact = txtFieldContact.getText();
 		
-	//	if(comboBox.getSelectedIndex()==0) {
+		if(comboBox.getSelectedIndex()==0) {
 			String email = txtFieldEmail.getText();
-			
-	//		Student newStudent = new Student(id, password, fName, lName, User.Role.STUDENT, email, contact);
-	//		Student.create(newStudent);
-	//		new Student_login().setVisible(true);
-	        dispose();
+			Student newStudent = new Student(id, password, fName, lName, User.Role.STUDENT, email, contact);
+			client.sendCommand("Add Student");
+			client.addStudent(newStudent);	
+			client.studentResponse();
+	        setVisible(false);
 
-	//	}else if(comboBox.getSelectedIndex()==1) {
-	//		Supervisor newSupervisor = new Supervisor(id, password, fName, lName, User.Role.ADVISOR);
-			
-	//	}else {
-			//Manager manager = new Manager(id, password, fName, lName, User.Role.MANAGER);
+		}
+		
+		if(comboBox.getSelectedIndex()==1) {
+		Advisor advisor = new Advisor(id, password, fName, lName, User.Role.ADVISOR);
+		client.sendCommand("Add Advisor");
+		client.addAdvisor(advisor);	
+		client.advisorResponse();
+        setVisible(false);
+		}
+		
+		
+		if(comboBox.getSelectedIndex()==2) {
+		Supervisor supervisor = new Supervisor(id, password, fName, lName, User.Role.SUPERVISOR);
+		client.sendCommand("Add Supervisor");
+		client.addSupervisor(supervisor);	
+		client.supervisorResponse();
+        setVisible(false);
 		}
 
-//	}
+	}
 
 
 	private void cancel() {
-		// new Authentication().setVisible(true);
 	        dispose();
 	}
 	
@@ -226,7 +236,7 @@ public class Registration extends JFrame {
 	  contentPane.add(lblPassword); 
 	  contentPane.add(lblRole);
 	  contentPane.add(lblEmail); 
-	//  contentPane.add(comboBox);
+	  contentPane.add(comboBox);
 	  contentPane.add(txtFieldID); 
 	  contentPane.add(txtFieldFirstName);
 	  contentPane.add(txtFieldLastName); 
@@ -245,28 +255,20 @@ public class Registration extends JFrame {
 	 //class that shows or hides email option base on role
 	private class RoleComboxListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
-			//if (comboBox.getSelectedIndex() < 1) {
+			if (comboBox.getSelectedIndex() < 1) {
 				txtFieldEmail.setVisible(true);
 				lblEmail.setVisible(true);
 				lblContact.setVisible(true);
 				txtFieldContact.setVisible(true);
-			//} else {
-		//		txtFieldEmail.setVisible(false);
+			} else {
+				txtFieldEmail.setVisible(false);
 				lblEmail.setVisible(false);
 				lblContact.setVisible(false);
 				txtFieldContact.setVisible(false);
-			//}
+			}
 
 		}
 	}
 	
 	
-	public static void main(String[] args) {
-				try {
-					Registration frame = new Registration();
-					frame.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
 }

@@ -1,3 +1,5 @@
+// Mattania Mckoy 1704278
+
 package frames;
 
 import java.awt.BorderLayout;
@@ -18,8 +20,15 @@ import javax.swing.JScrollPane;
 import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableModel;
 
+import client.Client;
+import model.Advisor;
+import model.Entry;
+import model.User;
+
 import java.awt.Font;
 import java.awt.CardLayout;
+
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.JTextField;
 import javax.swing.JButton;
@@ -30,10 +39,14 @@ import javax.swing.ScrollPaneConstants;
 import javax.swing.JComboBox;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
+import model.Entry.EntryType;
+import model.Entry.Status;
+import model.Student;
 
 public class Dash extends JFrame {
     
-    private JPanel mainPanel;
+	private static final long serialVersionUID = 1L;
+	private JPanel mainPanel;
     private JPanel sidebarPanel;
     private JPanel contentPanel;
     private JPanel headerPanel;
@@ -45,55 +58,54 @@ public class Dash extends JFrame {
     private JSeparator separator;
     private JPanel recentChatPanel;
     private JScrollPane scrollPaneChat;
-    
+    private JComboBox selectEntryType, selectCategories;
     boolean flag = true;
     private ChatMessenger chat = new ChatMessenger();
     private JLabel lbl;
     
-    public Dash(String role) {
+    
+    public Dash(String role, User user, Client client) {
         super("Dashboard");
         setResizable(false);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        main(role);
+        main(role,user, client);
         setSize(983, 616);
         setVisible(true);
-     
     }
     
     
-    public void main(String role) {
+    public void main(String role, User user, Client client) {
     	 mainPanel = new JPanel(new BorderLayout());
-         header();
+         header(user);
          sideBar();
          content();
          rightPanel();
          messengerButton();
          logoutButton();
+         studentView(user, client);
+        /*
          
-         if(role.equals("STUDENT")) {
-         studentView();
-         }
-         
-         if(role.contains("ADVISOR")) {
+         switch(role) {
+         case "STUDENT":
+        	 studentView();
+        	 break;
+         case "ADVISOR":
         	 advisorView();
-         }
-         
-         if(role.contains("SUPERVISOR")) {
+        	 break;
+         case "SUPERVISOR":
         	 supervisorView();
+        	 break; 
          }
+         */
     }
     
     
     
     public void sideBar() {
    
-    	//create sidebar panel uses gridbaglayout
         sidebarPanel = new JPanel();
-        
-        //default sidebar panel style
         sidebarPanel.setPreferredSize(new Dimension(150, 400));
         sidebarPanel.setBackground(new Color(147, 112, 219));
-        
         GridBagLayout gbl_sidebarPanel = new GridBagLayout();
         gbl_sidebarPanel.columnWidths = new int[]{59, 0, 0, 0, 0, 0, 59, 0};
         gbl_sidebarPanel.rowHeights = new int[]{23, 23, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
@@ -104,58 +116,49 @@ public class Dash extends JFrame {
     }
     
     
-    public void header() {
-    	// create the header
+    public void header(User user) {
         headerPanel = new JPanel();
         headerPanel.setForeground(new Color(105, 105, 105));
         headerPanel.setPreferredSize(new Dimension(650, 50));
         headerPanel.setBackground(Color.DARK_GRAY);
         headerPanel.setLayout(null);
-        
-        //welcome message in header
         welcomeLabel = new JLabel("Welcome");
         welcomeLabel.setFont(new Font("Segoe UI Symbol", Font.BOLD, 12));
         welcomeLabel.setBounds(21, 0, 61, 50);
         welcomeLabel.setForeground(Color.WHITE);
         headerPanel.add(welcomeLabel);
-        
-        // add the main panel and header panel to the frame
         getContentPane().add(mainPanel, BorderLayout.CENTER);
         getContentPane().add(headerPanel, BorderLayout.NORTH);
-        
-        
-        //online label
         JLabel lblOnline = new JLabel("Online");
         lblOnline.setForeground(new Color(255, 255, 255));
         lblOnline.setBounds(901, 20, 40, 13);
         headerPanel.add(lblOnline);
         lblOnline.setHorizontalAlignment(SwingConstants.CENTER);
+        JLabel name = new JLabel(user.getFirstName()+ " "+user.getLastName());					// dynamically get user's name
+        name.setForeground(new Color(255, 255, 255));
+        name.setFont(new Font("Segoe UI Symbol", Font.PLAIN, 13));
+        name.setBounds(78, 19, 242, 14);
+        headerPanel.add(name);
     }
     
+    
     public void content() {
-    	// create the main content panel
         contentPanel = new JPanel();
         contentPanel.setPreferredSize(new Dimension(412, 410));
-        contentPanel.setBackground(Color.LIGHT_GRAY);
+        contentPanel.setBackground(new Color(255, 255, 255));
     }
     
     
     public void logoutButton() {
-    	 //create Logout button 
         tglbtnLogout = new JToggleButton("Logout");
-        
-        //show user a confirm dialog
         tglbtnLogout.addActionListener(new ActionListener() {
         	public void actionPerformed(ActionEvent e) {
         		int choice = JOptionPane.showConfirmDialog(rootPane, "Do you want to logout ?" );
         		if(choice == 0) {
-        			new Login().setVisible(true);
         			dispose();
         		}
         	}
         });
-        
-        //button style
         tglbtnLogout.setFont(new Font("Segoe UI Symbol", Font.PLAIN, 11));
         tglbtnLogout.setForeground(new Color(0, 0, 0));
         tglbtnLogout.setBackground(new Color(255, 255, 255));
@@ -165,26 +168,16 @@ public class Dash extends JFrame {
         gbc_tglbtnLogout.insets = new Insets(0, 0, 5, 0);
         gbc_tglbtnLogout.gridx = 0;
         gbc_tglbtnLogout.gridy = 15;
-        
         sidebarPanel.add(tglbtnLogout, gbc_tglbtnLogout);
         mainPanel.add(contentPanel, BorderLayout.CENTER);
-        contentPanel.setLayout(new CardLayout(0, 0));
         
     }
     
-    
-    
-    
-    
+ 
     
     public void messengerButton() {
-    	  //create messenger button
     	  tglbtnMessenger = new JToggleButton("Messenger");
-    	  
-    	  //shows or hides chat with button click
           tglbtnMessenger.addActionListener(e -> toggleChat());
-          
-          //button style
           tglbtnMessenger.setFont(new Font("Segoe UI Symbol", Font.PLAIN, 11));
           tglbtnMessenger.setForeground(new Color(255, 255, 255));
           tglbtnMessenger.setBackground(new Color(0, 0, 0));
@@ -200,7 +193,6 @@ public class Dash extends JFrame {
 
     
     public void rightPanel() {
-    	//create panel
 	    scrollPaneChat = new JScrollPane();
 	    scrollPaneChat.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         scrollPaneChat.setToolTipText("Recent Chats");
@@ -209,14 +201,13 @@ public class Dash extends JFrame {
         recentChatPanel.setToolTipText("Recent chat");
         scrollPaneChat.add(recentChatPanel);
         mainPanel.add(scrollPaneChat, BorderLayout.EAST);
-        
-        //default label
         lbl = new JLabel("No Chats");
         lbl.setFont(new Font("Yu Gothic UI Semilight", Font.ITALIC, 11));
         lbl.setHorizontalAlignment(SwingConstants.CENTER);
         scrollPaneChat.setColumnHeaderView(lbl);
- 
     }
+    
+    
     
     //functions used by toggleChat to show or hide
     public void displayChat() {
@@ -245,14 +236,8 @@ public class Dash extends JFrame {
     
     
     public void advisorView() {
- 	   
-   	 //advisor side bar
-   	   
-   	   //change default sidebar color
-   	   sidebarPanel.setBackground(new Color(0, 191, 255));
-   	   
-   	   
-   	   JLabel  lblIcon = new JLabel("");
+   	      sidebarPanel.setBackground(new Color(0, 191, 255));
+   	      JLabel  lblIcon = new JLabel("");
           lblIcon.setIcon(new ImageIcon(Dash.class.getResource("/images/operator.png")));
           GridBagConstraints gbc_lblIcon = new GridBagConstraints();
           gbc_lblIcon.gridwidth = 9;
@@ -290,7 +275,7 @@ public class Dash extends JFrame {
           gbc_tglbtnHome.fill = GridBagConstraints.HORIZONTAL;
           gbc_tglbtnHome.gridwidth = 9;
           gbc_tglbtnHome.insets = new Insets(0, 0, 5, 0);
-          gbc_tglbtnHome.gridx = 0;
+          gbc_tglbtnHome.gridx = -3;
           gbc_tglbtnHome.gridy = 4;
           sidebarPanel.add(tglbtnHome, gbc_tglbtnHome);
           
@@ -310,10 +295,7 @@ public class Dash extends JFrame {
           gbc_separator.gridy = 9;
           sidebarPanel.add(separator, gbc_separator);
           
-          /// end of supervisor side bar 
-          
-          
-          //supervisor content panel
+
           Home = new JPanel();
           contentPanel.add(Home);
           Home.setBackground(new Color(255, 255, 255));
@@ -458,12 +440,7 @@ public class Dash extends JFrame {
    
    public void supervisorView() {
 	   
-	 //supervisor side bar
-	   
-	   //change default sidebar color
 	   sidebarPanel.setBackground(new Color(0, 191, 255));
-	   
-	   //hide messenger button
 	   tglbtnMessenger.setVisible(false);
 	   
 	   
@@ -524,13 +501,10 @@ public class Dash extends JFrame {
        gbc_separator.gridx = 5;
        gbc_separator.gridy = 9;
        sidebarPanel.add(separator, gbc_separator);
-       
-       /// end of supervisor side bar 
-       
-       
-       //supervisor content panel
+       contentPanel.setLayout(new CardLayout(0, 0));
+
        Home = new JPanel();
-       contentPanel.add(Home, "name_70744344513000");
+       contentPanel.add(Home);
        Home.setBackground(new Color(255, 255, 255));
        Home.setLayout(null);
        
@@ -658,95 +632,247 @@ public class Dash extends JFrame {
     
     
     
-   public void studentView(){
-	    JLabel  lblIcon = new JLabel("");
-        lblIcon.setIcon(new ImageIcon(Dash.class.getResource("/images/students-cap.png")));
-        GridBagConstraints gbc_lblIcon = new GridBagConstraints();
-        gbc_lblIcon.gridwidth = 9;
-        gbc_lblIcon.insets = new Insets(0, 0, 5, 0);
-        gbc_lblIcon.gridx = 0;
-        gbc_lblIcon.gridy = 0;
-        sidebarPanel.add(lblIcon, gbc_lblIcon);
-        
-        JLabel lblStudent = new JLabel("STUDENT");
-        lblStudent.setFont(new Font("Microsoft YaHei", Font.BOLD, 12));
-        GridBagConstraints gbc_lblStudent = new GridBagConstraints();
-        gbc_lblStudent.gridwidth = 9;
-        gbc_lblStudent.insets = new Insets(0, 0, 5, 0);
-        gbc_lblStudent.gridx = 0;
-        gbc_lblStudent.gridy = 1;
-        sidebarPanel.add(lblStudent, gbc_lblStudent);
-        
-        JSeparator separator_1 = new JSeparator();
-        separator_1.setOrientation(SwingConstants.VERTICAL);
-        GridBagConstraints gbc_separator_1 = new GridBagConstraints();
-        gbc_separator_1.insets = new Insets(0, 0, 5, 5);
-        gbc_separator_1.gridx = 6;
-        gbc_separator_1.gridy = 2;
-        sidebarPanel.add(separator_1, gbc_separator_1);
-        
-        JToggleButton tglbtnEntry = new JToggleButton("Entry");
-        tglbtnEntry.setToolTipText("Create query or complaint");
-        tglbtnEntry.setForeground(Color.WHITE);
-        tglbtnEntry.setFont(new Font("Segoe UI Symbol", Font.PLAIN, 11));
-        tglbtnEntry.setBackground(Color.BLACK);
-        GridBagConstraints gbc_tglbtnEntry = new GridBagConstraints();
-        gbc_tglbtnEntry.fill = GridBagConstraints.HORIZONTAL;
-        gbc_tglbtnEntry.gridwidth = 9;
-        gbc_tglbtnEntry.insets = new Insets(0, 0, 5, 0);
-        gbc_tglbtnEntry.gridx = 0;
-        gbc_tglbtnEntry.gridy = 4;
-        sidebarPanel.add(tglbtnEntry, gbc_tglbtnEntry);
-        
-        JSeparator separator_3 = new JSeparator();
-        GridBagConstraints gbc_separator_3 = new GridBagConstraints();
-        gbc_separator_3.insets = new Insets(0, 0, 5, 5);
-        gbc_separator_3.gridx = 1;
-        gbc_separator_3.gridy = 5;
-        sidebarPanel.add(separator_3, gbc_separator_3);
-        
-        JToggleButton tglbtnComplaints = new JToggleButton("Complaint");
-        tglbtnComplaints.setToolTipText("Shows previous complaint");
-        tglbtnComplaints.setForeground(Color.WHITE);
-        tglbtnComplaints.setFont(new Font("Segoe UI Symbol", Font.PLAIN, 11));
-        tglbtnComplaints.setBackground(Color.BLACK);
-        GridBagConstraints gbc_tglbtnComplaints = new GridBagConstraints();
-        gbc_tglbtnComplaints.fill = GridBagConstraints.HORIZONTAL;
-        gbc_tglbtnComplaints.gridwidth = 9;
-        gbc_tglbtnComplaints.insets = new Insets(0, 0, 5, 0);
-        gbc_tglbtnComplaints.gridx = 0;
-        gbc_tglbtnComplaints.gridy = 6;
-        sidebarPanel.add(tglbtnComplaints, gbc_tglbtnComplaints);
-        
-        JSeparator separator_2 = new JSeparator();
-        GridBagConstraints gbc_separator_2 = new GridBagConstraints();
-        gbc_separator_2.insets = new Insets(0, 0, 5, 5);
-        gbc_separator_2.gridx = 2;
-        gbc_separator_2.gridy = 7;
-        sidebarPanel.add(separator_2, gbc_separator_2);
-        
-        JToggleButton tglbtnQueries = new JToggleButton("Queries");
-        tglbtnQueries.setToolTipText("Shows previous queries");
-        tglbtnQueries.setForeground(Color.WHITE);
-        tglbtnQueries.setFont(new Font("Segoe UI Symbol", Font.PLAIN, 11));
-        tglbtnQueries.setBackground(Color.BLACK);
-        GridBagConstraints gbc_tglbtnQueries = new GridBagConstraints();
-        gbc_tglbtnQueries.fill = GridBagConstraints.HORIZONTAL;
-        gbc_tglbtnQueries.gridwidth = 9;
-        gbc_tglbtnQueries.insets = new Insets(0, 0, 5, 0);
-        gbc_tglbtnQueries.gridx = 0;
-        gbc_tglbtnQueries.gridy = 8;
-        sidebarPanel.add(tglbtnQueries, gbc_tglbtnQueries);
-        
-        
-        separator = new JSeparator();
-        GridBagConstraints gbc_separator = new GridBagConstraints();
-        gbc_separator.gridheight = 5;
-        gbc_separator.anchor = GridBagConstraints.SOUTH;
-        gbc_separator.insets = new Insets(0, 0, 5, 5);
-        gbc_separator.gridx = 5;
-        gbc_separator.gridy = 9;
-        sidebarPanel.add(separator, gbc_separator);
-    }
-    
+   public void studentView(User user, Client client) {
+	   Student student = (Student) user;
+
+	   sidebarPanel.setBackground(new Color(0, 191, 255));
+	   
+	   JLabel  lblIcon = new JLabel("");
+       lblIcon.setIcon(new ImageIcon(Dash.class.getResource("/images/students-cap.png")));
+       GridBagConstraints gbc_lblIcon = new GridBagConstraints();
+       gbc_lblIcon.gridwidth = 9;
+       gbc_lblIcon.insets = new Insets(0, 0, 5, 0);
+       gbc_lblIcon.gridx = 0;
+       gbc_lblIcon.gridy = 0;
+       sidebarPanel.add(lblIcon, gbc_lblIcon);
+       
+       JLabel lblStudent = new JLabel("Student");
+       lblStudent.setFont(new Font("Microsoft YaHei", Font.BOLD, 12));
+       GridBagConstraints gbc_lblSupervisor = new GridBagConstraints();
+       gbc_lblSupervisor.gridwidth = 9;
+       gbc_lblSupervisor.insets = new Insets(0, 0, 5, 0);
+       gbc_lblSupervisor.gridx = 0;
+       gbc_lblSupervisor.gridy = 1;
+       sidebarPanel.add(lblStudent, gbc_lblSupervisor);
+       
+       JSeparator separator_1 = new JSeparator();
+       separator_1.setOrientation(SwingConstants.VERTICAL);
+       GridBagConstraints gbc_separator_1 = new GridBagConstraints();
+       gbc_separator_1.insets = new Insets(0, 0, 5, 5);
+       gbc_separator_1.gridx = 6;
+       gbc_separator_1.gridy = 2;
+       sidebarPanel.add(separator_1, gbc_separator_1);
+       
+       JToggleButton tglbtnHome = new JToggleButton("Home");
+       tglbtnHome.setFocusable(false);
+       tglbtnHome.setFocusPainted(false);
+       tglbtnHome.setEnabled(false);
+       tglbtnHome.setToolTipText("");
+       tglbtnHome.setForeground(Color.WHITE);
+       tglbtnHome.setFont(new Font("Segoe UI Symbol", Font.PLAIN, 11));
+       tglbtnHome.setBackground(Color.BLACK);
+       GridBagConstraints gbc_tglbtnHome = new GridBagConstraints();
+       gbc_tglbtnHome.fill = GridBagConstraints.HORIZONTAL;
+       gbc_tglbtnHome.gridwidth = 9;
+       gbc_tglbtnHome.insets = new Insets(0, 0, 5, 0);
+       gbc_tglbtnHome.gridx = 0;
+       gbc_tglbtnHome.gridy = 4;
+       sidebarPanel.add(tglbtnHome, gbc_tglbtnHome);
+       
+       JSeparator separator_3 = new JSeparator();
+       GridBagConstraints gbc_separator_3 = new GridBagConstraints();
+       gbc_separator_3.insets = new Insets(0, 0, 5, 5);
+       gbc_separator_3.gridx = 1;
+       gbc_separator_3.gridy = 5;
+       sidebarPanel.add(separator_3, gbc_separator_3);
+       
+       JSeparator separator = new JSeparator();
+       GridBagConstraints gbc_separator = new GridBagConstraints();
+       gbc_separator.gridheight = 5;
+       gbc_separator.anchor = GridBagConstraints.SOUTH;
+       gbc_separator.insets = new Insets(0, 0, 5, 5);
+       gbc_separator.gridx = 5;
+       gbc_separator.gridy = 9;
+       sidebarPanel.add(separator, gbc_separator);
+       contentPanel.setLayout(new CardLayout(0, 0));
+
+
+       //student content panel
+       Home = new JPanel();
+       contentPanel.add(Home);
+       Home.setBackground(new Color(255, 255, 255));
+       Home.setLayout(null);
+       
+       
+       JLabel lblEntryType = new JLabel("Select Entry Type");
+       lblEntryType.setBounds(10, 42, 108, 14);
+       Home.add(lblEntryType);
+       
+       selectEntryType = new JComboBox<Entry.EntryType>();
+       selectEntryType.setBounds(10, 67, 157, 22);
+       selectEntryType.setModel(new DefaultComboBoxModel<Entry.EntryType>(Entry.EntryType.values()));
+       selectEntryType.setSelectedIndex(0);
+       selectEntryType.addActionListener(new RoleComboxListener());
+       Home.add(selectEntryType);
+       
+       
+       JLabel lblCategories = new JLabel("Select Categories");
+       lblCategories.setBounds(10, 110, 108, 14);
+       Home.add(lblCategories);
+       
+       selectCategories = new JComboBox<>();
+       selectCategories.setModel(new DefaultComboBoxModel(new String[] {"Progress Report", "Grade Forgiveness", "Academic Advisor", "Transcript"}));
+       selectCategories.setSelectedIndex(0);
+       selectCategories.setBounds(10, 133, 157, 22);
+       Home.add(selectCategories);
+       
+       
+       JTextArea txtrEnterYourDetails = new JTextArea();
+       txtrEnterYourDetails.setToolTipText("Enter Query or Complaint");
+       txtrEnterYourDetails.addFocusListener(new FocusAdapter() {
+         	@Override
+         	public void focusGained(FocusEvent e) {
+         		txtrEnterYourDetails.setText("");
+         	}
+         	@Override
+         	public void focusLost(FocusEvent e) {
+         		if(txtrEnterYourDetails.getText().equals("")) {
+         			txtrEnterYourDetails.setText("Enter Your Query or Complaint");
+         		}
+         	}
+         });
+       txtrEnterYourDetails.setBackground(SystemColor.control);
+       txtrEnterYourDetails.setFont(new Font("Comic Sans MS", Font.PLAIN, 12));
+       txtrEnterYourDetails.setBounds(10, 181, 255, 167);
+       Home.add(txtrEnterYourDetails);
+       
+       
+       
+       JButton submit = new JButton("Submit");
+       submit.setToolTipText("Send Entry");
+       submit.addActionListener(new ActionListener() {
+       	public void actionPerformed(ActionEvent e) {
+       		if(txtrEnterYourDetails.getText()!= "Enter Your Query or Complaint") {
+       			String category = (String)selectCategories.getSelectedItem();
+       			if(selectEntryType.getSelectedIndex() == 0) {
+       				Entry queryEntry = new Entry(Entry.EntryType.QUERY,category, student, txtrEnterYourDetails.getText());
+       				client.sendCommand("Add Entry");
+       		        client.addEntryInfo(queryEntry);
+       		        client.addEntryResponse();
+       		       
+       			}else {
+       				Entry complaintEntry = new Entry(Entry.EntryType.COMPLAINT,category, student, txtrEnterYourDetails.getText());
+       				client.sendCommand("Add Entry");
+       		        client.addEntryInfo(complaintEntry);
+       		        client.addEntryResponse();
+       			}
+       			
+       		}else {
+       			JOptionPane.showMessageDialog(null, "Must be filled");
+       		}
+       	}
+       });
+       
+       
+       submit.setFont(new Font("Comic Sans MS", Font.PLAIN, 11));
+       submit.setBounds(10, 359, 89, 35);
+       Home.add(submit);
+       
+       JScrollPane supervisorScrollPane = new JScrollPane();
+       supervisorScrollPane.setBounds(297, 181, 439, 183);
+       supervisorScrollPane.setVisible(false);
+       Home.add(supervisorScrollPane);
+       
+       JTable table1 = new JTable();
+		table1.setFont(new Font("Times New Roman", Font.PLAIN, 15));
+		supervisorScrollPane.setViewportView(table1);
+		table1.setBackground(Color.LIGHT_GRAY);
+		table1.setModel(new DefaultTableModel(
+			new Object[][] {
+			},
+			new String[] {
+				"EntryNo", "Status", "Type", "Category", "Advisor"
+			}
+		));
+		
+       
+       JLabel lblEntriesTitle = new JLabel("My Entries");
+       lblEntriesTitle.setBounds(318, 156, 96, 14);
+       lblEntriesTitle.setVisible(false);
+       Home.add(lblEntriesTitle);
+       
+       JTextArea EntriesDetails_1 = new JTextArea();
+       EntriesDetails_1.setFont(new Font("Comic Sans MS", Font.PLAIN, 13));
+       EntriesDetails_1.setEditable(false);
+       EntriesDetails_1.setBackground(SystemColor.controlHighlight);
+       EntriesDetails_1.setBounds(297, 392, 199, 81);
+       EntriesDetails_1.setVisible(false);
+       Home.add(EntriesDetails_1);
+       
+       JLabel lblEntriesDetails = new JLabel("Details");
+       lblEntriesDetails.setBounds(307, 375, 54, 14);
+       lblEntriesDetails.setVisible(false);
+       Home.add(lblEntriesDetails);
+       
+       JLabel lblStatus = new JLabel("Status");
+       lblStatus.setBounds(599, 84, 74, 14);
+       lblStatus.setVisible(false);
+       Home.add(lblStatus);
+       
+       JComboBox filterByStatus = new JComboBox();
+       filterByStatus.setModel(new DefaultComboBoxModel(Status.values()));
+       filterByStatus.setBounds(599, 102, 137, 22);
+       filterByStatus.setVisible(false);
+       Home.add(filterByStatus);
+       
+       JButton btnEdit = new JButton("Edit");
+       btnEdit.setBounds(307, 481, 89, 35);
+       btnEdit.setVisible(false);
+       Home.add(btnEdit);
+       
+       
+       
+       JTextArea responseDetails = new JTextArea();
+       responseDetails.setFont(new Font("Comic Sans MS", Font.PLAIN, 13));
+       responseDetails.setToolTipText("Advisor Response");
+       responseDetails.setEditable(false);
+       responseDetails.setBackground(SystemColor.controlHighlight);
+       responseDetails.setBounds(538, 392, 199, 81);
+       responseDetails.setVisible(false);
+       Home.add(responseDetails);
+       
+       JButton viewEntries = new JButton("View Entries");
+       viewEntries.addActionListener(new ActionListener() {
+       	public void actionPerformed(ActionEvent e) {
+       		if(e.getSource() == viewEntries) {
+       			filterByStatus.setVisible(true);
+       			btnEdit.setVisible(true);
+       			lblStatus.setVisible(true);
+       			lblEntriesDetails.setVisible(true);
+       			lblEntriesTitle.setVisible(true);
+       			EntriesDetails_1.setVisible(true);
+       			supervisorScrollPane.setVisible(true);
+       		}
+       		
+       	}
+       });
+       viewEntries.setFont(new Font("Comic Sans MS", Font.PLAIN, 11));
+       viewEntries.setBounds(628, 11, 108, 35);
+       Home.add(viewEntries);
+       
+
+       
+       
+   }
+   
+   private class RoleComboxListener implements ActionListener {
+		public void actionPerformed(ActionEvent e) {
+			if (selectEntryType.getSelectedIndex() < 1) {
+				selectCategories.setModel(new DefaultComboBoxModel(new String[]{"Progress Report", "Grade Forgiveness", "Academic Advisor", "Transcript"}));		
+			} else {
+				selectCategories.setModel(new DefaultComboBoxModel(new String[]{"Missing Grade", "Incorrect Grade", "Academic Advisor Change"}));
+			}
+
+		}
+	}
 }
