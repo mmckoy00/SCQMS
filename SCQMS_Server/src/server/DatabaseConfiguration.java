@@ -18,10 +18,10 @@ public class DatabaseConfiguration {
         try {
         	if(conn == null) {
         		conn =  getConnection(URL, USER, PASSWORD);
-        		JOptionPane.showMessageDialog(null, "Connection Established");
+        		System.out.println("Connection Established");
         	}
         }catch(SQLException e) {
-        	JOptionPane.showMessageDialog(null, "Connection Not Established");
+        	System.out.println("Connection Not Established");
         	e.printStackTrace();
         }
         return conn;
