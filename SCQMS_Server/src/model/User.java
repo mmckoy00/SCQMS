@@ -89,7 +89,14 @@ public abstract class User implements Serializable {
     public void setUserRole(Role userRole) {
         this.userRole = userRole;
     }
+    
+    
 
+	@Override
+	public String toString() {
+		return "User [id=" + id + ", password=" + password + ", firstName=" + firstName + ", lastName=" + lastName
+				+ ", userRole=" + userRole + "]";
+	}
 
 	public static User getById(String id) {
 		try (Session session = HibernateUtil.getSessionFactory().getCurrentSession()) {

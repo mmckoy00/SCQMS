@@ -5,8 +5,11 @@ import java.sql.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import org.hibernate.Session;
@@ -21,7 +24,11 @@ public class EntryReference implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Id
-	 @Column(name="entry_no", nullable=false)
+	@Column(name="id")
+	@GeneratedValue(strategy=GenerationType.IDENTITY)   //id
+	 private int id;
+	
+	@OneToOne
 	 private Entry entryNo;
 	
 	 @ManyToOne
@@ -86,13 +93,18 @@ public class EntryReference implements Serializable {
 	}
 	 
 	
-	public void createEntryRef() {
-		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
-		Transaction transaction = session.beginTransaction();
-	    session.persist(this);
+	public static void createEntryRef(EntryReference entryNo) {
+		
+		Transaction transaction = null;
+		try(Session session = HibernateUtil.getSessionFactory().getCurrentSession()){
+		transaction = session.beginTransaction();
+		session.persist(entryNo);
 	    transaction.commit();
 	    session.close();
-		}
+		} catch (Exception e) {
+	        e.printStackTrace();
+	      }
+	}
 	 
 	 
 }

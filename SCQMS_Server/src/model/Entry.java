@@ -63,12 +63,13 @@ public enum EntryType{
  
  
  
+ 
 public Entry() {}
 
-public Entry(EntryType type, String category, Student studentId, String caseDetails) {
+public Entry(EntryType entryType, String category, Student studentId, String caseDetails) {
 	 long millis = System.currentTimeMillis();
 	
-	this.type = type;
+	this.type = entryType;
 	this.category = category;
 	this.studentId = studentId;
 	this.details = caseDetails;
@@ -76,6 +77,7 @@ public Entry(EntryType type, String category, Student studentId, String caseDeta
 	
 
 }
+
 
 public int getId() {
 	return id;
@@ -164,13 +166,19 @@ public void setRequestDate() {
 
 
 
-public void LogNewEntry() {
-	Session session = HibernateUtil.getSessionFactory().getCurrentSession();
-	Transaction transaction = session.beginTransaction();
-    session.persist(this);
+public static void logNewEntry(Entry entry) {
+	
+	Transaction transaction = null;
+	try(Session session = HibernateUtil.getSessionFactory().getCurrentSession()){
+	transaction = session.beginTransaction();
+	session.persist(entry);
     transaction.commit();
     session.close();
-	}
+	} catch (Exception e) {
+        e.printStackTrace();
+      }
+}
+
 
 public void updateEntryDetails() {
 	Transaction transaction = null;
@@ -195,6 +203,8 @@ public void updateEntryDetails() {
 			e.printStackTrace();
 		}
 }
+
+
 
 
  }
