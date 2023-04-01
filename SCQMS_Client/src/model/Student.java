@@ -118,7 +118,7 @@ public class Student extends User{
 	  	  		JOptionPane.showMessageDialog(null, "Account Successfully Updated!", "Account Status", JOptionPane.OK_OPTION);
   			}else {
   				JOptionPane.showMessageDialog(null, "User Not Found!", "Account Status", JOptionPane.WARNING_MESSAGE);
-  			}
+  			} 
   		}catch(HibernateException he) {
   			if(transaction != null) {
   				transaction.rollback();
