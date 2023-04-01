@@ -4,7 +4,7 @@ This is a demo desktop application created using java to capture all students co
 rectify the issue remotely.
 
 ## Database Connection
-![cqms_db](https://user-images.githubusercontent.com/47528508/226965064-bad54e05-a44f-4bc9-bdfa-38eb615c939b.png)
+![DB](https://user-images.githubusercontent.com/47528508/229264945-4f9d25d3-7989-4ed2-b678-dd6b11c4a3ae.PNG)
 
 ## Server ON
 ![on](https://user-images.githubusercontent.com/47528508/229264754-24c30f5d-f61a-4bcd-b1d6-d0b815ee3362.PNG)
