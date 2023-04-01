@@ -1,131 +1,196 @@
+//Mattania Mckoy 1704278
 package client;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.net.SocketException;
+import java.net.UnknownHostException;
 
 import javax.swing.JOptionPane;
 
-import exception.ServerDownException;
 import frames.Dash;
 import frames.Login;
+import model.Advisor;
+import model.Entry;
 import model.Student;
+import model.Supervisor;
 import model.User;
-import model.User.Role;
 
 public class Client {
-	private String command = "";
-	private ObjectInputStream input;
-	private static ObjectOutputStream output;
-	private Socket connectionSocket;
+	private Socket connection = null;
+	private ObjectInputStream fromServer = null;
+	private ObjectOutputStream toServer = null;
+	private String action =null;
 	
 	
-    private void createConnection() throws NullPointerException, SocketException {
-    	int serverPort = 8888;
-    	try {
-    		this.connectionSocket = new Socket("127.0.0.1", serverPort);
-    	}catch(IOException e) {
-    		JOptionPane.showMessageDialog(null, e.getMessage());
-    	}
-    }
-    
-    private void configureStreams() throws NullPointerException {
-    	try {
-    		input = new ObjectInputStream(connectionSocket.getInputStream());
-    		output = new ObjectOutputStream(connectionSocket.getOutputStream());
-    	}catch(IOException e) {
-    		JOptionPane.showMessageDialog(null, e.getMessage());
-    	}
-    }
-    
-    private void stop() throws NullPointerException{
-    	try {
-    		this.input.close();
-    		this.output.close();
-    		this.connectionSocket.close();
-    	}catch(IOException e) {
-    		JOptionPane.showMessageDialog(null, e.getMessage());
-    	}
-    }
-  
- 
-    public static void sendCommand(String command) throws NullPointerException{
-    	try {
-    		output.writeObject(command);
-    		output.flush();
-    		JOptionPane.showMessageDialog(null, "Just sendCommand");
-    	}catch(IOException e) {
-    		JOptionPane.showMessageDialog(null, e.getMessage());
-    	}
-    }
-    
-    public static void sendCredentials(String id, String password)throws NullPointerException {
-    	try {
-    		output.writeObject(id);
-    		output.flush();
-    		output.writeObject(password);
-    		output.flush();
-    		JOptionPane.showMessageDialog(null, "Just sendCredentials");
-    	}catch(IOException e) {
-    		JOptionPane.showMessageDialog(null, e.getMessage());
-    	}
-    }
-    
-    
-    public void response() throws NullPointerException, SocketException {
-    	try {
-    	
-			String role = (String) input.readObject();
-			JOptionPane.showMessageDialog(null, role.toString());
-			
-			switch(role) {
-			case "ADVISOR":
-				new Dash("Advisor").setVisible(true);
-				break;
-				
-			case "STUDENT":
-				new Dash("Student");
-				break;
-				
-			case "SUPERVISOR":
-				new Dash("Supervisor");
-				break;
-			
-			default:
-				JOptionPane.showMessageDialog(null, "Incorrect ID or Password!");
-			}
-			
-    
-    	}catch(ClassCastException es) {
-    		es.printStackTrace();
-    	}catch(ClassNotFoundException ex) {
-    		ex.printStackTrace();
-    	}catch(IOException e) {
-    		e.printStackTrace();
-    	}
-    	finally {
-    		stop();
-    	}
-    	
-    }
-    
-    public static void main(String[] args) {
-    	Client client = new Client();
-    	try {
-    		client.createConnection();
-			client.configureStreams();
-			new Login();
-			client.response();
-			
-		} catch (NullPointerException e) {
-			JOptionPane.showMessageDialog(null, "SERVER DOWN", "Server Connection Status", JOptionPane.ERROR_MESSAGE);
-		}catch(SocketException e) {
-			JOptionPane.showMessageDialog(null, "SERVER RESET"
-					+ "", "Server Connection Status", JOptionPane.ERROR_MESSAGE);
+	public Client() throws IOException {
+		this.start(); 
+		this.initializeStreams();
+	}
+	
+	private void start() throws UnknownHostException, IOException {
+			this.connection = new Socket("127.0.0.1", 8888);
+	}
+	
+	
+	private void closeConnection() {
+		try {
+			fromServer.close();
+			toServer.close();
+			connection.close();
+		}catch(IOException ex) {
+			ex.printStackTrace();
 		}
-    	
-    	
-    }
+	}
+	
+	private void initializeStreams() throws IOException {
+			if(connection != null) {
+				this.toServer = new ObjectOutputStream(connection.getOutputStream());
+				this.fromServer = new ObjectInputStream(this.connection.getInputStream());
+			  }
+			
+	}
+	
+	public void sendCommand(String action) {
+		this.action = action;
+		try {
+			toServer.writeObject(this.action);
+			JOptionPane.showMessageDialog(null, "SENT :"+action);
+		}catch(NullPointerException e) {
+			JOptionPane.showMessageDialog(null, "SERVER DOWN line 59", "Server Status", JOptionPane.ERROR_MESSAGE);
+			System.out.println("Good bye");
+		}
+		catch (IOException e) {
+			JOptionPane.showMessageDialog(null, "SERVER DOWN line 63", "Server Status", JOptionPane.ERROR_MESSAGE);
+			System.out.println("Good bye");
+			closeConnection();
+		}
+	}
+	
+	public void loginCredentials(String id, String password) {
+		try {
+			toServer.writeObject(id);
+			toServer.flush();
+			toServer.writeObject(password);
+			toServer.flush();
+		} catch (IOException e) {
+			JOptionPane.showMessageDialog(null, "SERVER DOWN line 76 ", "Server Status", JOptionPane.ERROR_MESSAGE);
+			System.out.println("Good bye");
+			closeConnection();
+		}
+	}
+	
+	public void addStudent(Student student) {
+		try {
+			toServer.writeObject(student);
+		} catch (IOException e) {
+			JOptionPane.showMessageDialog(null, "SERVER DOWN line 86", "Server Status", JOptionPane.ERROR_MESSAGE);
+			System.out.println("Good bye");
+			e.printStackTrace();
+		}
+	}
+	
+	public void addAdvisor(Advisor advisor) {
+		try {
+			toServer.writeObject(advisor);
+		} catch (IOException e) {
+			JOptionPane.showMessageDialog(null, "SERVER DOWN line 98", "Server Status", JOptionPane.ERROR_MESSAGE);
+			System.out.println("Good bye");
+			e.printStackTrace();
+		}
+	}
+	
+	public void addSupervisor(Supervisor supervisor) {
+		try {
+			toServer.writeObject(supervisor);
+		} catch (IOException e) {
+			JOptionPane.showMessageDialog(null, "SERVER DOWN line 108", "Server Status", JOptionPane.ERROR_MESSAGE);
+			System.out.println("Good bye");
+			e.printStackTrace();
+		}
+	}
+	
+	public void studentResponse() {
+		try {
+			boolean response = (boolean) fromServer.readObject();
+			if(response == true) {
+				JOptionPane.showMessageDialog(null, "Successfully", "User Status", JOptionPane.OK_OPTION);
+			}else {
+				JOptionPane.showMessageDialog(null, "UnSuccessfully","User Status", JOptionPane.WARNING_MESSAGE);
+			}
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	
+	public void advisorResponse() {
+		try {
+			boolean response = (boolean) fromServer.readObject();
+			if(response == true) {
+				JOptionPane.showMessageDialog(null, "Successfully", "User Status", JOptionPane.OK_OPTION);
+			}else {
+				JOptionPane.showMessageDialog(null, "UnSuccessfully","User Status", JOptionPane.WARNING_MESSAGE);
+			}
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	
+	public void supervisorResponse() {
+		try {
+			boolean response = (boolean) fromServer.readObject();
+			if(response == true) {
+				JOptionPane.showMessageDialog(null, "Successfully", "User Status", JOptionPane.OK_OPTION);
+			}else {
+				JOptionPane.showMessageDialog(null, "UnSuccessfully","User Status", JOptionPane.WARNING_MESSAGE);
+			}
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void addEntryInfo(Entry entry) {
+		try {
+			toServer.writeObject(entry);
+		} catch (IOException e) {
+			JOptionPane.showMessageDialog(null, "SERVER DOWN line 97", "Server Status", JOptionPane.ERROR_MESSAGE);
+			System.out.println("Good bye");
+			e.printStackTrace();
+		}
+	}
+	
+	
+	public User loginResponse() throws ClassNotFoundException, IOException {
+		User response = new Student();
+		response = (User) fromServer.readObject();
+		return response;
+	}
+	
+	public void addEntryResponse() {
+		try {
+			boolean response = (boolean) fromServer.readObject();
+			if(response == true) {
+				JOptionPane.showMessageDialog(null, "Successfully", "Entry Submission", JOptionPane.OK_OPTION);
+			}else {
+				JOptionPane.showMessageDialog(null, "UnSuccessfully","Entry Submission", JOptionPane.WARNING_MESSAGE);
+			}
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+	}
+	
+	
+	
 }
