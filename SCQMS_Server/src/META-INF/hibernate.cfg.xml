@@ -5,7 +5,7 @@
 <hibernate-configuration>
 	<session-factory>
 		<!--Hibernate Properties-->
-		<property name="hbm2ddl.auto">create-drop</property>
+		<property name="hbm2ddl.auto">update</property>
 		<property name="hibernate.dialect">org.hibernate.dialect.MySQL8Dialect</property>
 		<property name="hibernate.show_sql">true</property>
 		<property name="connection.pool_size">1</property>
